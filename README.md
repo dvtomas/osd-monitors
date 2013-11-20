@@ -16,7 +16,8 @@ Features
  * Can hide/show/toggle visibility upon signal receive. Define keyboard shortcuts in your favourite WM and toggle visibility when the  monitors obscure some part of the screen you need to see.
  *  Compact, easy to modify GPLed C source code you can alter to suit your needs.
 
-.As of version 0.1, following monitors are implemented:
+As of version 0.1, following monitors are implemented:
+
  * clock
  * cpu activity
  * context switches per second
@@ -28,7 +29,7 @@ Features
  * disk activity
  * network activity
 
-If you happen to write some more monitors or find some bugs, link:contact.html[send me patches or reports].
+Suggestions, praises, feature request are welcome.
 
 Screenshots
 -----------
