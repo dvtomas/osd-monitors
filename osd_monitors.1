@@ -1,0 +1,121 @@
+.TH osd\_monitors 1 "November 2008" "OSD Monitors"
+.SH NAME
+osd\_monitors - X on-screen system monitors
+.SH SYNOPSIS
+.B osd\_monitors
+[\fIOPTION\fR]...
+.SH DESCRIPTION
+.PP
+Displays various text monitors (cpu utilization, net, clock, memory, swap, disk, context switches, ...) on screen. If there should be multiple monitors running at the same time, run multiple instances of osd\_monitors with different parameters. 
+.PP 
+Features:
+
+ - Uses libxosd2 for achieving pseudo-transparency. Floats on top of all windows (is shaped and unmanaged), everything but the letters is transparent.
+ - User definable string format, font, position, outline, drop shadow.
+ - Intelligent unit display (automatically switches to kB/MB/.... units depending on value).
+ - User definable colors for different values (CPU utilization can show green/yellow/red depending on value).
+ - Can hide/show/toggle visibility upon signal receive. Define keyboard shortcuts in your favourite WM and toggle visibility when the monitors obscure some part of the screen you need to see.
+ - Compact, easy to modify GPLed C source code you can alter to suit your needs.
+
+.SH OPTIONS
+.TP
+\fB\-T, \-\-type\fR
+type of the monitor: clock(default), cpu, ...
+.TP
+\fB\-D, \-\-device\fR
+device (monitor type dependent). Must come after monitor type!
+.TP
+\fB\-F, \-\-format\fR
+format string (monitor dependent). Must come after monitor type!
+.TP
+\fB\-f, \-\-font\fR
+fully qualified font.
+.TP
+\fB\-c, \-\-color\fR
+color. (default: green)
+.TP
+\fB\-s, \-\-shadow\fR
+drop shadow offset. (default: 0)
+.TP
+\fB\-O, \-\-outline\-width\fR
+outline width. (default: 0)
+.TP
+\fB\-C, \-\-outline\-color\fR
+outline color. (default: black)
+.TP
+\fB\-L, \-\-level\-colors\fR
+list of value:color pairs, for monitors where color can change with value
+.TP
+\fB\-t, \-\-top\fR
+locate at top of screen (default: bottom)
+.TP
+\fB\-v, \-\-vcenter\fR
+locate in vertical center of screen (default: bottom)
+.TP
+\fB\-b, \-\-bottom\fR
+locate at bottom of screen (default)
+.TP
+\fB\-r, \-\-right\fR
+locate at right of screen (default: left)
+.TP
+\fB\-m, \-\-middle\fR
+locate at middle of screen (default: left)
+.TP
+\fB\-l, \-\-left\fR
+locate at left of screen (default)
+.TP
+\fB\-o, \-\-offset\fR
+vertical offset in pixels. (default: 0)
+.TP
+\fB\-H, \-\-hoffset\fR
+horizontal offset in pixels. (default: 0)
+.TP
+\fB\-i, \-\-interval\fR
+interval (time between updates) in seconds
+.TP
+\fB\-h, \-\-help\fR
+this help message
+.PP
+\fBAvailable monitors\fR 
+.br
+Use the \fB--help\fR option to discover all available monitors and their respective default \fBdevice\fR and \fBformat\fR values. Use common sense to find out what values to fill in, I used common sense when designing the program and since the sense is common, we must agree on a consensus :-). If you don't have a common sense, use the source.
+.PP
+\fBFormat description\fR 
+.br
+- For the clock monitor, \fBformat\fR is a \fBstrftime(3)\fR format. 
+.br
+- For io speed measurements (net, swapact, diskact etc.) format is a custom format, similar to printf, but with the following modifiers: \fB%i\fR renders input speed, \fB%o\fR renders output speed, \fB%t\fR renders total speed (input+output). 
+.br
+- For usage measurements (disk, swap, mem etc.) format is a custom format, similar to printf, but with the following modifiers: \fB%f\fR renders free space, \fB%F\fR renders free percentage, \fB%u\fR renders used space, \fB%U\fR renders used percentage, \fB%t\fR renders total space.
+.br
+- For others, format is usually simple printf format with values you must guess :-)
+.PP
+\fBLevel colors\fR 
+.br
+The \fB--level-colors\fR allows the color of the text to be dependent on the value measured, at least for some of the monitors. The format is "value:color value:color ...". Color used for displaying is then the color specified in --level-colors for the nearest value lower than the measured value. Colors are specified as X constants (e.g. yellow, black, ...). For the usage monitors, measured value is used percentage (0..100), for the speed monitors it is the total speed, for others use common sense (hint: for cpu activity it is the percentage of cpu activity, for clock level colors do not apply).
+.PP
+.SH SIGNALS
+osd\_monitors reacts to \fISIGUSR1\fR by hiding itself, to \fISIGUSR2\fR by showing itself again, and to \fISIGHUP\fR by toggling visibility state. This can be used for example in window managers, where a \fBkillall \-HUP osd\_monitors\fR mapped on some keyboard combo can toggle visibility of the clock and thus unobscure the screen when needed.
+.PP
+.SH EXAMPLES
+.PP
+Run osd\_monitors as clock, updates every second, uses custom font (use xfontsel or gtkfontsel to find out your favourite font), cyan color, format displays only hours and minutes, is positioned on the right side, five pixels from the bottom.
+.PP
+\fBosd\_monitors\fR -T clock -i 1 --font '-adobe-helvetica-medium-r-normal-*-*-120-*-*-p-*-iso8859-1' -c cyan --format '%H:%M' -r -o 5
+.PP
+Run osd\_monitors as cpu monitor, updates once every three seconds, uses custom colors for different cpu loads, uses custom format.
+.PP
+\fBosd\_monitors\fR -T cpu -i 3 --level-colors="0:green 50:yellow 80:red" --format="cpu:%.0f%%"
+.PP
+Run osd\_monitors as network activity monitor for eth1, displays without outline but with drop shadow, uses custom colors for different network loads, uses custom format.
+.PP
+\fBosd\_monitors\fR -T net -D eth1 -O 0 -s 1 --level-colors="0:gray 10240:green 51200:yellow 102400:red" --format="eth1:%i/%o"
+.PP
+Also see the script \fBrun\_osd\_monitors\fR in the source directory, which is an example script to run various monitors.
+.PP
+.SH AUTHORS
+Tomas Dvorak (https://bitbucket.org/dvtomas)
+.br
+Based on osd\_clock code by Jon Beckham <leftorium@leftorium.net>
+.SH COPYRIGHT
+It is distributed under the GNU General Public License.

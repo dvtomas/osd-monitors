@@ -1,0 +1,21 @@
+#!/bin/sh
+# This is the script I use to start up monitors. Modify it to suit your taste.
+
+# Use xfontsel or gtkfontsel to look up your fonts.
+
+# Terminus is the best console font ever. Get it and use it.
+BIG_FONT='-xos4-terminus-medium-r-normal-*-*-200-*-*-c-*-paratype-pt154'
+SMALL_FONT='-xos4-terminus-medium-r-normal-*-*-140-*-*-c-*-paratype-pt154'
+
+# If you don't have terminus, you'll probably have helvetica.. 
+#BIG_FONT='-adobe-helvetica-medium-r-normal-*-*-120-*-*-p-*-iso8859-1'
+#SMALL_FONT='-adobe-helvetica-medium-r-normal-*-*-80-*-*-p-*-iso8859-1'
+
+#Limit stack usage, so osd_monitors don't look as memory hogs in top
+ulimit -s 32768
+
+osd_monitors -T clock   -i 1 --font "$BIG_FONT" -c cyan --format '%H:%M' -r -o 5 &
+osd_monitors -T cpu     -i 3 --font "$SMALL_FONT" --level-colors="0:green 50:yellow 80:orange" -r -o 35 --format="cpu:%.0f%%" &
+osd_monitors -T net     -i 3 --font "$SMALL_FONT" --level-colors="0:gray 10240:white 51200:yellow 102400:orange" -r --format="eth0:%i/%o" -o 55 &
+osd_monitors -T mem     -i 3 --font "$SMALL_FONT" --level-colors="0:green 50:yellow 80:red" -r --format="mem:%U%%" -o 75 &
+osd_monitors -T swapact -i 3 --font "$SMALL_FONT" --level-colors="0:green 384000:yellow 1048576:red" -r --format="swap:%t" -o 95 &
