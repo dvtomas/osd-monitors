@@ -1,21 +1,46 @@
 #!/bin/sh
-# This is the script I use to start up monitors. Modify it to suit your taste.
 
-# Use xfontsel or gtkfontsel to look up your fonts.
+# WARNING: You quite probably don't have the terminus font installed. 
+# Use xfontsel or similar application to select other font you like, 
+# and set the FONT variable throughout this source appropriately.
+# Or, even better, install terminus, it is probably the best console font.
 
-# Terminus is the best console font ever. Get it and use it.
-BIG_FONT='-xos4-terminus-medium-r-normal-*-*-200-*-*-c-*-paratype-pt154'
-SMALL_FONT='-xos4-terminus-medium-r-normal-*-*-140-*-*-c-*-paratype-pt154'
+# First kill any old instances of the monitors that may have been running
+# before
+killall osd_monitors
 
-# If you don't have terminus, you'll probably have helvetica.. 
-#BIG_FONT='-adobe-helvetica-medium-r-normal-*-*-120-*-*-p-*-iso8859-1'
-#SMALL_FONT='-adobe-helvetica-medium-r-normal-*-*-80-*-*-p-*-iso8859-1'
-
-#Limit stack usage, so osd_monitors don't look as memory hogs in top
+# Limit stack usage, so we don't eat too much memory 
 ulimit -s 32768
 
-osd_monitors -T clock   -i 1 --font "$BIG_FONT" -c cyan --format '%H:%M' -r -o 5 &
-osd_monitors -T cpu     -i 3 --font "$SMALL_FONT" --level-colors="0:green 50:yellow 80:orange" -r -o 35 --format="cpu:%.0f%%" &
-osd_monitors -T net     -i 3 --font "$SMALL_FONT" --level-colors="0:gray 10240:white 51200:yellow 102400:orange" -r --format="eth0:%i/%o" -o 55 &
-osd_monitors -T mem     -i 3 --font "$SMALL_FONT" --level-colors="0:green 50:yellow 80:red" -r --format="mem:%U%%" -o 75 &
-osd_monitors -T swapact -i 3 --font "$SMALL_FONT" --level-colors="0:green 384000:yellow 1048576:red" -r --format="swap:%t" -o 95 &
+# A helper function to run osd_monitors with common parameters. It places the
+# monitor to the top right, runs it on the background, and increments the
+# vertical position for the next monitor.
+Y=-14
+monitors() {
+	osd_monitors "$@" --font "$FONT" -t -r -o $Y -H 10 &
+	Y=$((Y+INCREMENT))
+}
+
+# For the clock use a slightly bigger font
+FONT='-xos4-terminus-medium-r-normal-*-*-200-*-*-c-*-paratype-pt154'
+INCREMENT=30
+
+# Clock
+monitors -T clock -i 1 -c cyan --format '%H:%M'
+
+# For the rest of the monitors use smaller font
+FONT='-xos4-terminus-medium-r-normal-*-*-140-*-*-c-*-paratype-pt154'
+INCREMENT=17
+
+# Cpu activity monitor. 
+monitors -T cpu -D cpu -i 3 --level-colors="0:green 50:yellow 80:orange" --format="cpu:%.0f%%"
+
+# Memory usage monitor
+monitors -T mem -i 3 --level-colors="0:green 50:yellow 80:red" --format="mem:%U%%"
+
+# Swap activity monitor
+monitors -T swapact -i 3 --level-colors="0:gray 10240:yellow 1024000:red" --format="swp:%iB/%oB"
+
+# Network activity monitor. The name of the device must be passed to this
+# script as a parameter. If it is not, this monitor is disabled.
+[ -z $1 ] || monitors -T net -D "$1" -i 3 --level-colors="0:gray 10240:white 51200:yellow 102400:orange" --format=$1":%iB/%oB"
