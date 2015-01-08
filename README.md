@@ -1,20 +1,19 @@
-OSD Monitors
-============
+# OSD Monitors
 
-Introduction
-------------
+## Introduction
 
-A simple, ultra-lightweight, transparent, unobtrusive X textual clock, cpu meter, network meter etc.. displayed as an overlay on the screen.
+A simple, ultra-lightweight, transparent, unobtrusive X textual clock, cpu meter, network meter etc.. displayed as an overlay on the screen. The homepage is at
 
-Features
---------
+https://bitbucket.org/dvtomas/osd-monitors
+
+## Features
 
  * Uses libxosd2 for achieving pseudo-transparency. Floats  on  top  of all  windows  (is  shaped and unmanaged), everything but the letters is transparent.
  * User definable string format, font, position, outline, drop  shadow.
  * Intelligent unit display (automatically switches to kB/MB/.... units depending on value).
  * User definable colors for different values (CPU utilization can show green/yellow/red depending on value).
  * Can hide/show/toggle visibility upon signal receive. Define keyboard shortcuts in your favourite WM and toggle visibility when the  monitors obscure some part of the screen you need to see.
- *  Compact, easy to modify GPLed C source code you can alter to suit your needs.
+ *  Compact, easy to modify, free source code you can alter to suit your needs.
 
 As of version 0.1, following monitors are implemented:
 
@@ -31,15 +30,13 @@ As of version 0.1, following monitors are implemented:
 
 Suggestions, praises, feature request are welcome.
 
-Screenshots
------------
+## Screenshots
 
 OSD Monitors in action in the bottom right part of the screen
 ![Screenshot](http://ava.wz.cz/images/osd_monitors.png)
 
 
-Installation
-------------
+## Installation
 
 Depends on libxosd, under debian:
 
@@ -59,8 +56,7 @@ To compile, type 'make'.
 To install, type 'make install' or simply copy the resulting binary anywhere
 you like.
 
-Running
--------
+## Running
 
 To run, see 
 
@@ -77,8 +73,6 @@ $ run_osd_monitors
 There is also a manual page included, which describes the usage in greater detail
 
 
-Authors
--------
-Tomáš Dvořák
+## Credits
 
-Initially based on osd_clock by jon beckham <leftorium@leftorium.net>
+Inspired by the osd_clock program by jon beckham <leftorium@leftorium.net>
