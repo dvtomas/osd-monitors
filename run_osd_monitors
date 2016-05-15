@@ -44,3 +44,5 @@ monitors -T swapact -i 3 --level-colors="0:gray 10240:yellow 1024000:red" --form
 # Network activity monitor. The name of the device must be passed to this
 # script as a parameter. If it is not, this monitor is disabled.
 [ -z $1 ] || monitors -T net -D "$1" -i 3 --level-colors="0:gray 10240:white 51200:yellow 102400:orange" --format=$1":%iB/%oB"
+
+monitors -T bat --level-colors="0:red 25:orange 50:yellow 99:green"

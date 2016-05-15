@@ -314,6 +314,37 @@ read_lines_from_file(const char *fname, int n_vals, ...)
 	va_end(ap);
 }
 
+/* Reads a single line from file specified by contacenating path. Trailing \n is stripped*
+ * line and len semantics is the same as at getline(3) */
+void
+read_first_line_from_file(const char *path1, const char *path2, const char *path3, 
+    char **line, size_t *len)
+{
+	FILE *f;
+	ssize_t read;
+  char *fname = malloc(strlen(path1) + strlen(path2) + strlen(path3) + 1);
+  strcpy(fname, path1);
+  strcat(fname, path2);
+  strcat(fname, path3);
+
+	if (NULL == (f = fopen(fname, "r"))) {
+			perror("fopen");
+			exit(EXIT_FAILURE);
+	}
+
+	read = getline(line, len, f);
+  if (-1 == read) {
+    warn("read_first_line_from_file: getline failed (%s)", fname);
+  } else {
+    if ((*line)[read-1] == '\n') {
+      (*line)[read-1] = '\0';
+    }
+  }
+
+	fclose(f);
+  free(fname);
+}
+
 /* Signal handling **********************************************************/
 
 static int visibility = 1;
@@ -598,8 +629,62 @@ monitor_type_net_retrieve_stats(void *_io_stats, const struct cfg *cfg)
 	io_stats->out = out;
 }
 
+/* monitor battery */
 
-/* Monitor specs */
+enum charge_status {
+  status_unknown = 0,
+  status_full = 1,
+  status_charging = 2,
+  status_discharging = 3,
+};
+
+struct battery_stats {
+  long charge_full;
+  long charge_now;
+  enum charge_status charge_status;
+};
+
+void *
+monitor_type_battery_create_stats_data(const struct cfg *cfg)
+{
+	return malloc(sizeof(struct battery_stats));
+}
+
+void
+monitor_type_battery_retrieve_stats(void *_stats, const struct cfg *cfg)
+{
+	struct battery_stats *stats = _stats;
+  char *line = NULL;
+  size_t len;
+
+	read_first_line_from_file("/sys/class/power_supply/", cfg->device, "/charge_now", &line, &len);
+  stats->charge_now = atol(line);
+	read_first_line_from_file("/sys/class/power_supply/", cfg->device, "/charge_full", &line, &len);
+	stats->charge_full = atol(line);
+	read_first_line_from_file("/sys/class/power_supply/", cfg->device, "/status", &line, &len);
+	stats->charge_status = strcmp(line, "Full") == 0 ? status_full: (
+      strcmp(line, "Charging") == 0 ? status_charging : (
+      strcmp(line, "Discharging") == 0 ? status_discharging : status_unknown));
+  free(line);
+}
+
+void 
+monitor_type_battery_render(xosd *osd, const struct cfg *cfg,
+		const struct timeval *t_now, const struct timeval *t_before,
+		const void *_stats_now, const void *_stats_before)
+{
+	char output[256];
+	const struct battery_stats *stats = _stats_now;
+	float f = 100.0 * stats->charge_now / stats->charge_full;
+
+  const char *status = stats->charge_status == status_full ? "" : (
+    stats->charge_status == status_charging ? " Charging" : (
+    stats->charge_status == status_discharging ? " Discharging" : " ?"));
+
+	snprintf(output, sizeof(output) - 1, cfg->format, f, status);
+	xosd_set_colour(osd, color_for_level(f, cfg));
+	xosd_display(osd, 1, XOSD_string, output);
+}
 
 static struct monitor monitors[] = {
 	{
@@ -691,6 +776,15 @@ static struct monitor monitors[] = {
 	create_stats_data:  monitor_create_io_stats_data,
 	retrieve_stats: monitor_type_net_retrieve_stats,
 	render: monitor_type_iospeed_render,
+	},
+	{
+	name:  "bat",
+	description:  "Battery capacity (from /sys/class/power_supply/)",
+	default_device: "BAT0",
+	default_format: "bat0: %.0f%%%s",
+	create_stats_data:  monitor_type_battery_create_stats_data,
+	retrieve_stats: monitor_type_battery_retrieve_stats,
+	render: monitor_type_battery_render,
 	},
 };
 

@@ -1,7 +1,3 @@
-#
-# Makefile for X-on-screen display
-#
-
 PREFIX=/usr/local
 EXEC_PREFIX=$(PREFIX)
 BINDIR=$(EXEC_PREFIX)/bin
