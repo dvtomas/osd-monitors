@@ -32,9 +32,9 @@ Suggestions, praises, feature request are welcome.
 
 ## Screenshots
 
-OSD Monitors in action in the bottom right part of the screen
-![Screenshot](http://ava.wz.cz/images/osd_monitors.png)
+![Screenshot](https://bitbucket.org/repo/yRjnqq/images/2949097411-osd-monitors-screenshot.png)
 
+*OSD Monitors in action in the bottom right part of the screen over Calibre*
 
 ## Installation
 
