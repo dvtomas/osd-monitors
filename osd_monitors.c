@@ -657,9 +657,9 @@ monitor_type_battery_retrieve_stats(void *_stats, const struct cfg *cfg)
   char *line = NULL;
   size_t len;
 
-	read_first_line_from_file("/sys/class/power_supply/", cfg->device, "/charge_now", &line, &len);
+	read_first_line_from_file("/sys/class/power_supply/", cfg->device, "/energy_now", &line, &len);
   stats->charge_now = atol(line);
-	read_first_line_from_file("/sys/class/power_supply/", cfg->device, "/charge_full", &line, &len);
+	read_first_line_from_file("/sys/class/power_supply/", cfg->device, "/energy_full", &line, &len);
 	stats->charge_full = atol(line);
 	read_first_line_from_file("/sys/class/power_supply/", cfg->device, "/status", &line, &len);
 	stats->charge_status = strcmp(line, "Full") == 0 ? status_full: (

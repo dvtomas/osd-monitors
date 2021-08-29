@@ -5,7 +5,7 @@ LIBDIR=$(EXEC_PREFIX)/lib
 MANDIR=$(PREFIX)/man
 INCLUDEDIR=$(PREFIX)/include
 
-CC=gcc
+CC=cc
 INSTALL=/usr/bin/install -c
 INSTALL_DATA=$(INSTALL) -m 644
 
